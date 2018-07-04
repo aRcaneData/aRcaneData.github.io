@@ -54,12 +54,26 @@ and is wrapped around the whole page content, except for the footer in this exam
   <div class="w3-card-4 w3-margin w3-white">
   <img src="/images/catsblog.jpg" alt="Miao?" style="width:100%">
     <div class="w3-container">
-      <h3><b>Making elegant word clouds in R</b></h3>
-      <h5>Using RVest and Wordcloud2 Package to generate beautiful word clouds from online content, <span class="w3-opacity">June 26, 2018</span></h5>
+      <h2><b>Making elegant word clouds in R</b></h2>
+      <h3>Using RVest and Wordcloud2 Package to generate beautiful word clouds from online content - <span class="w3-opacity">June 26, 2018</span></h4>
+	  <h4>The internet is full of word clouds to visualize text data. Sadly, the visual and aesthetical quality of many word clouds is not always helping to win attention.</h4>
     </div>
 
     <div class="w3-container">
-      <p style="text-align: justify">The internet is full of word clouds to visualize text data. Sadly, the visual and aesthetical quality of many word clouds is not always helping to win attention.</p>
+	<h3><b>Wordclouds. Whats the point?</b></h4>
+      <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
+For data scientists wordclouds are normally a rather fancy plaything. From an analytical point of view, they offer only limited information on how words are distributed or in what context they are used. Due to the size of the written word in a cloud its frequency might be deducted and an overall picture of associated words is visible,  but little else can be learned from them.</p>
+  <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
+Yet using them in an elegant way can help to make a point, draw attention or summarize topics and opinions. Because they are more a visual effect than an analytical tool to evaluate textual content they should optimally be as visual pleasing and well-structured as possible.</p>
+  <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
+Searching on the Internet for wordclouds, 90% of your results belong basically to one of the two main types:</p>
+  <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 10px">
+- handmade, visually optimized wordclouds for professional presentations (commercials, journalism,   political parties)</p>
+  <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
+- rather raw looking, visually unpleasing ones generated with a tool and simplified settings</p>
+  <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
+Making a handmade, visually appealing wordcloud can be a time and energy consuming process. Thus, generating a near perfect, visually sharp wordcloud with a programming language like R can be a viable alternative.</p>
+</p>
 	  <pre class="r"><code>library(dplyr)
 library(tidytext)
 library(janeaustenr)
