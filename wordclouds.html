@@ -23,6 +23,8 @@ body,h1,h2,h3,h4,h5 {font-family: "Raleway", sans-serif}
   pre:not([class]) {
     background-color: white;
   }
+  code.r{ /* Code block */
+    font-size: 16px;
 </style>
 <script type="text/javascript">
 if (window.hljs && document.readyState && document.readyState === "complete") {
@@ -60,7 +62,7 @@ and is wrapped around the whole page content, except for the footer in this exam
     </div>
 
     <div class="w3-container">
-	<h3><b>Wordclouds. Whats the point?</b></h4>
+	<h3><b>Wordclouds. Whats the point?</b></h3>
       <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
 For data scientists wordclouds are normally a rather fancy plaything. From an analytical point of view, they offer only limited information on how words are distributed or in what context they are used. Due to the size of the written word in a cloud its frequency might be deducted and an overall picture of associated words is visible,  but little else can be learned from them.</p>
   <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
@@ -74,29 +76,106 @@ Searching on the Internet for wordclouds, 90% of your results belong basically t
   <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
 Making a handmade, visually appealing wordcloud can be a time and energy consuming process. Thus, generating a near perfect, visually sharp wordcloud with a programming language like R can be a viable alternative.</p>
 </p>
-	  <pre class="r"><code>library(dplyr)
-library(tidytext)
-library(janeaustenr)
+<h3><b>Creating a Wordcloud from digital text sources</b></h3>
+ <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
+You can create wordclouds from any text source available. This text source can be on your computer or from online content like websites and Twitter feeds.</p>
+ <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
+This first blogpost will focus on internet sources in html format. At a later point i will show how to use Twitter and other sources in R to get your content and make it ready to use in your wordcloud2 package.</p>
+ <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
+First there are some requirements and considerations for a good wordcloud.
+A good wordcloud needs to have the right data quality and quantity.
+  <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
+Obviously, you need a descent amount of words. Depending on the form or shape of your word cloud you want to have between 50 and 2000 words to form a well-shaped cloud. With less, R will struggle to build a harmonious looking cloud.</p>
+ <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
+You also need the right kind of words. You want so-called stopwords excluded from your data frame before you start creating your cloud. Stopwords are all non-content filler words frequently appearing in all English texts: a, the, an, from, by, of, and, I etc.  Some frequent words might not be excluded despite using stopwords (usually in english: may, can, also, many, around, although...). You either want to exclude this words manually or you just leave them in. In this example I will leave them in because excluding all not topic related words can be time consuming and does little to better understand the wordclouds package. </p>
+ <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
+But you should consider: If you don’t exclude any stopwords at all before creating the wordcloud, due to their enormous frequency, they might easily dominate and ruin any visualization.</p>
+ <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
+You also want to exclude artefacts of code, hyperlinks, emojis etc.</p>
+ <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
+There will be much more things to consider along they way, but with this first considerations in mind we can begin to code and use some good old try-and-error to get around some problems.</p>
+<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
+Let’s assume we are interested in making a wordcloud about cats and we want Wikipedia to be our source.
+How do we build a script in R to do that?</p>
 
-# Making Bigrams and Trigrams 
-austen_bigrams &lt;- austen_books() %&gt;%
-  unnest_tokens(bigram, text, token = &quot;ngrams&quot;, n = 2)
+<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
+So lets get started with loading all necessary packages and dependencies: </p>
+	  <pre class="r"><code> # R elegant wordclouds
+#Setup
+install.packages("rvest")            # API Tool for Webpages
+install.packages("wordcloud2")       # Wordcloud 2
+install.packages("tm")               # Text Mining Package
+install.packages("ROAuth")           # RO Authenticator
+install.packages("RCurl")            # Rcurl
+install.packages("RColorBrewer")     # Advanced Color Mixer
+install.packages("stringr")          # Support Package 
 
-austen_trigrams &lt;- austen_books() %&gt;%
-  unnest_tokens(trigram, text, token = &quot;ngrams&quot;, n = 3)
+# Loading the Packages after the Install
+library(wordcloud2)
+library(tm)
+library(ROAuth)
+library(RCurl)
+library(RColorBrewer)
+library(rvest)
+library(stringr)</code></pre>
 
-austen_books() # Dataframe with 2 Columns Text/Book
+<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
+Now with all packages up and running we can start to download online content from a webpage. </p>
+<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
+I will start in this blog post with the Webpage API - because it is easier to handle and faster applicable for learners. The Twitter API requires a Twitter Account and all necessary tokens and codes.
+I will explain the use of such an API in another blog post.</p>
+<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
+But first let's get to Step 2 with our Wecontent from Wikipedia: Getting content with a Website API (vrest)</p>
 
-# Check Results
-austen_bigrams
-austen-trigrams
+	  <pre class="r"><code> # Saving a Website in your Data environment
+webpage <- read_html("https://en.wikipedia.org/wiki/Cat")
 
-# Count n-Grams
-austen_bigram_count &lt;- austen_bigrams %&gt;%
-                        count(bigram, sort = TRUE)
+# Get the text from the website extracted to a character list (p_text)
+p_text <- webpage %>%
+  html_nodes("p") %>%
+  html_text()
 
-austen_trigram_count &lt;- austen_trigrams %&gt;%
-                        count(trigram, sort = TRUE)</code></pre>
+# Check p_text
+p_text
+
+
+# Optional
+# Save the text as .txt file
+
+outputfile <- as.data.frame(p_text)
+write.table(outputfile, file = "cats.txt")
+
+# R Vest automatically applies segments and chapters to the downloaded data, 
+# we dont want that:
+# Merge all chapters to one segment
+p_merge <- paste(p_text, collapse = ", ")
+
+# Check merged text
+p_merge</code></pre>
+
+<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
+With this relatively simple code you can access almost all normally structured webpages and download the therein contained texts. The text content of a website is usually saved in the html_nodes p (Interesting Note: This even works if they are hidden behind cookie-based paywalls. Which can be useful If you want to continue reading a page after reaching a viewer limit).</p>
+<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
+We access this node and transfer it into an object in our workspace (p_text).</p>
+<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
+It comes in seperated chapters due to the way the API reader works. We want to merge all this chapter together to use all words appearing on the website and not just words contained in a certain paragraph. But of course we could also use the data seperately, if our goal is to make wordclouds from paragraphs of text.</p>
+<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
+In this example we merge everything into p_merge.</p>
+
+<p>
+To use our contained words in a wordcloud we need to dissect the text in the next step with a text mining package and later use some more transformations on this data to make it readable for our wordclouds2 package.
+
+From the merged text we create a corpus. A corpus is the foundation to create a Term Document Matrix (TDM). We need a TDM because it has all words saved with a frequency information. Based on TDM Data our Wordcloud Packages can create a cloud with differently sized words.
+
+I used the command stopwords two times here, because I copied junks of code from another script of mine. So, it runs in corpus generation and in TermDocumentMatrix generation. But it doesn't matter. This way you can copy and use both code parts seperately and still have a stopword exclusion active at any time.  Increased processing time is not an issue here unless you use huge amounts of text.
+  
+Well, now we can start using the created TDM “whole” to create wordclouds from it. It’s called “whole” because all chapters have been collapsed into a single chapter before TDM transformation. It’s the content of the whole page we are using to create the clouds. But you can call it whatever…
+</p>
+
+
+
+
+
 <pre class="r"><code>summary(cars)</code></pre>
 <pre><code>##      speed           dist       
 ##  Min.   : 4.0   Min.   :  2.00  
