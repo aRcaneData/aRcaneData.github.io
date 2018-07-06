@@ -105,16 +105,12 @@ So lets get started with loading all necessary packages and dependencies: </p>
 install.packages("rvest")            # API Tool for Webpages
 install.packages("wordcloud2")       # Wordcloud 2
 install.packages("tm")               # Text Mining Package
-install.packages("ROAuth")           # RO Authenticator
-install.packages("RCurl")            # Rcurl
 install.packages("RColorBrewer")     # Advanced Color Mixer
 install.packages("stringr")          # Support Package 
 
 # Loading the Packages after the Install
 library(wordcloud2)
 library(tm)
-library(ROAuth)
-library(RCurl)
 library(RColorBrewer)
 library(rvest)
 library(stringr)</code></pre>
@@ -158,42 +154,105 @@ With this relatively simple code you can access almost all normally structured w
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
 We access this node and transfer it into an object in our workspace (p_text).</p>
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-It comes in seperated chapters due to the way the API reader works. We want to merge all this chapter together to use all words appearing on the website and not just words contained in a certain paragraph. But of course we could also use the data seperately, if our goal is to make wordclouds from paragraphs of text.</p>
+It comes in seperated chapters due to the way the API reader works. We want to merge all this chapter together to use all words appearing on the website and not just words contained in a certain paragraph. But of course we could also use the data seperately if our goal is to make wordclouds from paragraphs of text.</p>
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
 In this example we merge everything into p_merge.</p>
+<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
+To use our contained words in a wordcloud we need to dissect the text in the next step with a text mining package and later use some more transformations on this data to make it readable for our wordclouds2 package.</p>
+	  <pre class="r"><code> # Form a corpus from the text
+corpus = VCorpus(VectorSource(p_merge))
+corpus = tm_map(corpus, removeWords, stopwords("english")) ## kill all stopwords from the corpus
+tdm = TermDocumentMatrix(corpus,
+                         control = list(removePunctuation = TRUE,
+                                        stopwords = c("https", stopwords("english")),
+                                        removeNumbers = TRUE, tolower = TRUE))
+# define tdm as matrix
+m = as.matrix(tdm)
+# get word counts in decreasing order
+word_freqs = sort(rowSums(m), decreasing=TRUE) 
+# create a data frame with words and their frequencies
+whole = data.frame(word=names(word_freqs), freq=word_freqs)
 
-<p>
-To use our contained words in a wordcloud we need to dissect the text in the next step with a text mining package and later use some more transformations on this data to make it readable for our wordclouds2 package.
+# Look at the table
+whole
+</code></pre>
 
-From the merged text we create a corpus. A corpus is the foundation to create a Term Document Matrix (TDM). We need a TDM because it has all words saved with a frequency information. Based on TDM Data our Wordcloud Packages can create a cloud with differently sized words.
-
+<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
+From the merged text we create a corpus. A corpus is the foundation to create a Term Document Matrix (TDM). We need a TDM because it has all words saved with a frequency information. Based on TDM Data we transform to a data frame our Wordcloud Packages can use to create a cloud with individually sized words.
+<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
 I used the command stopwords two times here, because I copied junks of code from another script of mine. So, it runs in corpus generation and in TermDocumentMatrix generation. But it doesn't matter. This way you can copy and use both code parts seperately and still have a stopword exclusion active at any time.  Increased processing time is not an issue here unless you use huge amounts of text.
-  
+<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">  
 Well, now we can start using the created TDM “whole” to create wordclouds from it. It’s called “whole” because all chapters have been collapsed into a single chapter before TDM transformation. It’s the content of the whole page we are using to create the clouds. But you can call it whatever…
 </p>
+	  <pre class="r"><code># a first try
+wordcloud2(whole, color = "random-light", backgroundColor = "grey")
 
+# reduce the number of words to 200 and leave out the most frequent one ("cats")
+wordcloud2(whole[2:200,], color = "random-light", backgroundColor = "grey")
+</code></pre>
+<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
+First code line is the application of wordcloud2 in general with some basic features.</p>
+<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
+In the second code chunk I reduced the number of used words to make the wordcloud more homogeneous. With the element whole[2:200,] instead of whole the number of words used from the whole data frame is reduced to 199 (from 2000+ words). This helps to limit the amount of extremely small and big words. Thus, the wordcloud is only using the words ranging from the second to the two hundredth word. "Cats" is out because it is extremely frequent and thus making everything else very small. I could rescale it manually by manipulating the data frame to make it more fitting. But with the second most frequent word "cat" we still have a good idea what the topic is, so I decided to just exclude the plural form.</p>
+<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
+Now we experiment with color schemes and shapes...</p>
+	  <pre class="r"><code># Use different color schemes
+wordcloud2(whole[2:200,], color = "random-dark", backgroundColor = "black")
 
+# Use different shapes
+wordcloud2(whole[2:200,], shape = 'pentagon', size = 0.6, color = "skyblue")
+</code></pre>
+<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
+The wordclouds2 package comes with several different shapes to adjust the form of the wordcloud. You can check different shapes by putting shape = 'pentagon'  into the command line.
+Furthermore, you can adjust size by putting size into the command. This increases or decreases the word size in proportion to the overall cloud.
+The command color = "random-dark" and "random-light" can be used to put different color sets into the cloud. The backgroundColor can also be adjusted to make your cloud more visually appealing. 
+</p>
+<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
+Not happy? 
+Well. Me neither. Shapes are great, but even better it is if you can use a custom shape.
+Fortunately, wordcloud2 permits the use of custom silhouettes to form your individualized word cloud.</p>
+<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
+You do need to get a properly saved and edited silhouette though. It must be in .gif or .png form and it has to contain transparency information. So basically, any file used for this has only black pixels for zones that can be filled by words and transparent zones that cannot be filled with words. The shape should not contain any other colors and transparency must be saved correctly. You might want to use a professional image-editing program like Photoshop to prepare or edit such a shape with the correct properties. We will use this one for further testing:</p>
+<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
+The silhouette is then saved and accessed in a folder (we use the default option here): 
+figPath = system.file("examples/cats.png",package = "wordcloud2")
+(This folder is in your system file folder, probably in C:\Users\Username\Documents\R\win-library\3.4\wordcloud2\examples - if you use default settings)</p>
+<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
+The code in R to include the shape is the following:</p>
+	  <pre class="r"><code># Use a Cat Shape
+figPath = system.file("examples/cats.png",package = "wordcloud2")
+wordcloud2(whole[2:1000,], figPath = figPath, size = 1.4, color = "random-light", backgroundColor = "black")
 
+# If you have the package extrafont installed you can also change the font:
+library(extrafont)
+fonttable()
+wordcloud2(whole[2:1000,], figPath = figPath, fontFamily = 'Tahoma', size = 1.2, color = "random-light", backgroundColor = "black")
+wordcloud2(whole[2:1000,], figPath = figPath, fontFamily = 'Taffy', size = 1.2, color = "random-light", backgroundColor = "black")
+wordcloud2(whole[2:1000,], figPath = figPath, fontFamily = 'Brush Script MT', size = 1.4, color = "random-light", backgroundColor = "black")
+</code></pre>
+<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
+You may need to adjust size=X.X or other parameters to fit the words better to your custom shape form.
+You also have to adjust your output window size in RStudio. You should make sure that the output window size corresponds with the size of your silhouette. If the output frame is too small, the whole cloud might not appear at all. If the proportions are different, your shape might get stretched or squeezed.
+My environment during creating this cloud looked like this:</p>
 
+<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
+There are a million things to optimize here: first of all, we still have verbs and filler words in our wordcloud that might be excluded. You can just inspect your dataframe and edit them out by some simple data frame commands like whole[-8,] = newframe, excluding word number 8 from the table.</p>
+<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
+You also could change the font style of your wordcloud if you got the extrafont package installed and properly configured, as shown in the code above.
+</p>
+<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
+Some of the final results:</p>
+<hr>
+<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
+I hope this little guide helped to understand how elegant wordclouds can be generated in R. The wordclouds2 package offers a lot of relatively simple solutions to create beautiful effects, shapes and color templates for your wordclouds. Using an API for HTML content is also a very useful gadget and might also be used for less artistic and more analytical tasks. </p>
+<hr>
 
-<pre class="r"><code>summary(cars)</code></pre>
-<pre><code>##      speed           dist       
-##  Min.   : 4.0   Min.   :  2.00  
-##  1st Qu.:12.0   1st Qu.: 26.00  
-##  Median :15.0   Median : 36.00  
-##  Mean   :15.4   Mean   : 42.98  
-##  3rd Qu.:19.0   3rd Qu.: 56.00  
-##  Max.   :25.0   Max.   :120.00</code></pre>
-	  
 	  <div class="w3-row">
         <div class="w3-col m8 s12">
           <form>
           <p><button formaction="https://arcanedata.github.io" class="w3-button w3-padding-large w3-white w3-border"><b>RETURN TO INDEX »</b></button></p>
         </form>
-        </div>
-        <div class="w3-col m4 w3-hide-small">
-          <p><span class="w3-padding-large w3-right"><b>Comments  </b> <span class="w3-badge">2</span></span></p>
-        </div>
+        </div>        
       </div>
     </div>
   </div>
@@ -220,28 +279,28 @@ I'm also interested in text mining, quantitative content analysis and artificial
   <!-- Posts -->
   <div class="w3-card w3-margin">
     <div class="w3-container w3-padding">
-      <h4>Popular Posts</h4>
+      <h4>Used Programs and Packages</h4>
     </div>
     <ul class="w3-ul w3-hoverable w3-white">
       <li class="w3-padding-16">
-        <img src="/w3images/workshop.jpg" alt="Image" class="w3-left w3-margin-right" style="width:50px">
-        <span class="w3-large">Lorem</span><br>
-        <span>Sed mattis nunc</span>
+        <img src="https://www.r-project.org/logo/Rlogo.png" alt="Image" class="w3-left w3-margin-right" style="width:60px">
+        <span class="w3-large">R Version 3.4.4</span><br>
+        <span>Base programming language</span>
       </li>
       <li class="w3-padding-16">
-        <img src="/w3images/gondol.jpg" alt="Image" class="w3-left w3-margin-right" style="width:50px">
-        <span class="w3-large">Ipsum</span><br>
-        <span>Praes tinci sed</span>
+        <img src="https://helloacm.com/wp-content/uploads/2017/10/R-studio.png" alt="Image" class="w3-left w3-margin-right" style="width:100px">
+        <span class="w3-large">R Studio</span><br>
+        <span>For usability and comfort</span>
       </li> 
       <li class="w3-padding-16">
-        <img src="/w3images/skies.jpg" alt="Image" class="w3-left w3-margin-right" style="width:50px">
-        <span class="w3-large">Dorum</span><br>
-        <span>Ultricies congue</span>
+        <img src="/images/package.png" alt="Image" class="w3-left w3-margin-right" style="width:50px">
+        <span class="w3-large">Required Packages</span><br>
+        <span>wordclouds2, rvest, tm, stringr, extrafont, RColorBrewer </span>
       </li>   
       <li class="w3-padding-16 w3-hide-medium w3-hide-small">
-        <img src="/w3images/rock.jpg" alt="Image" class="w3-left w3-margin-right" style="width:50px">
-        <span class="w3-large">Mingsum</span><br>
-        <span>Lorem ipsum dipsum</span>
+        <img src="/images/quotes.jpg" alt="Image" class="w3-left w3-margin-right" style="width:50px">
+        <span class="w3-large">Quote of the blogpost</span><br>
+        <span>Don't get me wrong, I admire elegance and have an appreciation of the finer things in life. But to me, beauty lies in simplicity. - Mark Hyman</span>
       </li>  
     </ul>
   </div>
