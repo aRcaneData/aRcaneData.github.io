@@ -260,7 +260,12 @@ wordcloud2(whole[2:1000,], figPath = figPath, fontFamily = 'Brush Script MT', si
 You may need to adjust size=X.X or other parameters to fit the words better to your custom shape form.
 You also have to adjust your output window size in RStudio. You should make sure that the output window size corresponds with the size of your silhouette. If the output frame is too small, the whole cloud might not appear at all. If the proportions are different, your shape might get stretched or squeezed.
 My environment during creating this cloud looked like this:</p>
-
+ <div class="imgbox">
+ <figure>
+  <img class="center-fit" src="/images/catsv3000.jpeg" alt="environment" style="margin:25px auto;display:block"/>
+  <figcaption style="text-align:center"> Working with Wordclouds</figcaption>
+  </figure>
+  </div>
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
 There are a million things to optimize here: first of all, we still have verbs and filler words in our wordcloud that might be excluded. You can just inspect your dataframe and edit them out by some simple data frame commands like whole[-8,] = newframe, excluding word number 8 from the table.</p>
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
