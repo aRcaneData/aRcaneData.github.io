@@ -190,7 +190,10 @@ wordcloud2(whole, color = "random-light", backgroundColor = "grey")
 # reduce the number of words to 200 and leave out the most frequent one ("cats")
 wordcloud2(whole[2:200,], color = "random-light", backgroundColor = "grey")
 </code></pre>
-<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
+  <img src="/images/Catsv1.jpg" alt="basic Wcloud" style="width:50%">
+   <img src="/images/Catsv2.jpg" alt="basic Wcloud - 199 words" style="width:50%">
+<hr>
+   <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
 First code line is the application of wordcloud2 in general with some basic features.</p>
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
 In the second code chunk I reduced the number of used words to make the wordcloud more homogeneous. With the element whole[2:200,] instead of whole the number of words used from the whole data frame is reduced to 199 (from 2000+ words). This helps to limit the amount of extremely small and big words. Thus, the wordcloud is only using the words ranging from the second to the two hundredth word. "Cats" is out because it is extremely frequent and thus making everything else very small. I could rescale it manually by manipulating the data frame to make it more fitting. But with the second most frequent word "cat" we still have a good idea what the topic is, so I decided to just exclude the plural form.</p>
