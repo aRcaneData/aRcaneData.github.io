@@ -112,43 +112,59 @@ create_token(
  # Loading a UserTimeline including all recent tweets
 tmdonald <- get_timelines("realdonaldtrump", n = 3200) 
 </code></pre>
+
+<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
+Rtweet generates a convenient data frame of your request. </p>
+<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
+For this timeline generated in the end of June 2018 from the American President I got a data frame with 3195 entries and 88 Variables for each tweet.</p>
+<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
+Variables collected by the API are for example “created_at”, “status_id” or “media_url” giving you a lot of extra information regarding when, where and with what device the tweet was generated and what objects were included (images/videos/links).</p>
+<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
+The important content for the Twitter Bot is in the column “text”</p>
+<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
+To further process this content, we need to separate it and put it in the right shape for our neural network to learn it. We also clean the tweets from Symbols, Links, Emojis and Code chunks... </p>
+
+	  <pre class="r"><code> # Transform text-data
+dtext <- as.vector(tmdonald$text)
+head(dtext)
+
+# Delete all hyperlinks from the data
+text2 = gsub("(f|ht)tp(s?)://(.*)[.][a-z]+", "", dtext)
+
+# Delete strange Symbols
+text3 = gsub("&amp;", "", text2)
+
+# Delete Slash links and code artefacts
+text4 = gsub("/(.*)+", "", text3)
+
+# Only keep viable latin letters excluding all flags, emojis and strange ASCII signs. 
+# If you work with russian or chinese texts, this could be problematic and you might use a different method here. 
+text5 <- iconv(text4, "latin1", "ASCII", sub="")
+
+# write a textfile with your content
+writeLines(text5, "testdt5.txt")
+</code></pre>
+<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
+After completely processing and cleaning the text I recommend writing a textfile in .txt form to check your content thoroughly. Remember, if you include any strange signs, links or code chunk, your neural network will learn them as part of the text and consider them a desired outcome to produce. </p>
+<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
+Any undesired symbols or links in the plain text might ruin the quality of the following steps, so be very rigorous here!</p>
+ <div class="imgbox">
+ <figure>
+  <img class="center-fit" src="/images/text5.jpg" alt="environment" style="margin:25px auto;display:block"/>
+  <figcaption style="text-align:center"> What your text file might look like</figcaption>
+  </figure>
+  </div>
+  <hr>
+<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
+After checking it well, we just need to collapse everything into one paragraph and it is ready for the ANN.</p>
+
+	  <pre class="r"><code> # Collapsing the text
+text <- paste(text5, collapse = ", ")</code></pre>
+
 <hr>
 <hr>
 <hr>
-<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-Now with all packages up and running we can start to download online content from a webpage. </p>
-<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-I will start in this blog post with the Webpage API - because it is easier to handle and faster applicable for learners. The Twitter API requires a Twitter Account and all necessary tokens and codes.
-I will explain the use of such an API in another blog post.</p>
-<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-But first let's get to Step 2 with our Wecontent from Wikipedia: Getting content with a Website API (vrest)</p>
-
-	  <pre class="r"><code> # Saving a Website in your Data environment
-webpage <- read_html("https://en.wikipedia.org/wiki/Cat")
-
-# Get the text from the website extracted to a character list (p_text)
-p_text <- webpage %>%
-  html_nodes("p") %>%
-  html_text()
-
-# Check p_text
-p_text
-
-
-# Optional
-# Save the text as .txt file
-
-outputfile <- as.data.frame(p_text)
-write.table(outputfile, file = "cats.txt")
-
-# R Vest automatically applies segments and chapters to the downloaded data, 
-# we dont want that:
-# Merge all chapters to one segment
-p_merge <- paste(p_text, collapse = ", ")
-
-# Check merged text
-p_merge</code></pre>
-
+<hr>
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
 With this relatively simple code you can access almost all normally structured webpages and download the therein contained texts. The text content of a website is usually saved in the html_nodes p (Interesting Note: This even works if they are hidden behind cookie-based paywalls. Which can be useful If you want to continue reading a page after reaching a viewer limit).</p>
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
