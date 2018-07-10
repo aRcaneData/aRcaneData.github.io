@@ -77,7 +77,7 @@ and is wrapped around the whole page content, except for the footer in this exam
     </div>
 
     <div class="w3-container">
-	<h3><b>Combining Twitter API use with Machine Learning</b></h3>
+	<h3><b>Required Software, Packages and Setup</b></h3>
       <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
 This is supposed to be a short tutorial about teaching Neural Networks imitating human created content. Some understanding of ANNs, the R programming language and APIs is required to successful run this tutorial. But I will try to keep this as simple as possible.</p>
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
@@ -88,7 +88,9 @@ To run Keras in R you will also need Anaconda including Python 3.6+ or something
 After installing Keras in R you need to connect it to your Anaconda/Python Environment. How to properly set it up is explained in detail in various blogs and pages, for example here: -Link-</p>
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
 But before we focus on the neural network part of this project, lets get our Twitter data first. </p>
-<h3><b>Part 1: Loading a userTimeline from Twitter</b></h3>  
+<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
+You will need a twitter account and you need to register an API with twitter. How to do this is found here: -Link-</p>
+<h3><b>Loading a userTimeline from Twitter</b></h3>  
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
 All required Packages for loading data from the Twitter API </p>
 
@@ -156,147 +158,73 @@ Any undesired symbols or links in the plain text might ruin the quality of the f
   </div>
   <hr>
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-After checking it well, we just need to collapse everything into one paragraph and it is ready for the ANN.</p>
+After checking it well, we just need to collapse everything into one paragraph and it is ready for the ANN.(I left the @-Parts in on purpose by the way, make it look more like a tweet!) </p>
 
 	  <pre class="r"><code> # Collapsing the text
 text <- paste(text5, collapse = ", ")</code></pre>
 
-<hr>
-<hr>
-<hr>
-<hr>
+<h3><b>Making a neural Network learn and imitate</b></h3>
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-With this relatively simple code you can access almost all normally structured webpages and download the therein contained texts. The text content of a website is usually saved in the html_nodes p (Interesting Note: This even works if they are hidden behind cookie-based paywalls. Which can be useful If you want to continue reading a page after reaching a viewer limit).</p>
-<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-We access this node and transfer it into an object in our workspace (p_text).</p>
-<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-It comes in seperated chapters due to the way the API reader works. We want to merge all this chapter together to use all words appearing on the website and not just words contained in a certain paragraph. But of course we could also use the data seperately if our goal is to make wordclouds from paragraphs of text.</p>
-<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-In this example we merge everything into p_merge.</p>
-<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-To use our contained words in a wordcloud we need to dissect the text in the next step with a text mining package and later use some more transformations on this data to make it readable for our wordclouds2 package.</p>
-	  <pre class="r"><code> # Form a corpus from the text
-corpus = VCorpus(VectorSource(p_merge))
-corpus = tm_map(corpus, removeWords, stopwords("english")) ## kill all stopwords from the corpus
-tdm = TermDocumentMatrix(corpus,
-                         control = list(removePunctuation = TRUE,
-                                        stopwords = c("https", stopwords("english")),
-                                        removeNumbers = TRUE, tolower = TRUE))
-# define tdm as matrix
-m = as.matrix(tdm)
-# get word counts in decreasing order
-word_freqs = sort(rowSums(m), decreasing=TRUE) 
-# create a data frame with words and their frequencies
-whole = data.frame(word=names(word_freqs), freq=word_freqs)
+Let’s start keras, allocate enough memory and get ready. Then we define the way the Network builds sequences from our text</p>
 
-# Look at the table
-whole
+<pre class="r"><code> # keras for networks and stringr for a convenient code implementation
+library("keras")
+library("stringr")
+memory.limit(size = 24000)
+
+cat("Corpus length:", nchar(text), "\n")
+
+# Checking setup
+head(text)
+nchar(text)
+
+maxlen <- 40  # Length of extracted character sequences
+
+step <- 4  # We sample a new sequence every `step` characters
+
+text_indexes <- seq(1, nchar(text) - maxlen, by = step)
+
+sentences <- str_sub(text, text_indexes, text_indexes + maxlen - 1)
+</code></pre>
+<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
+The memory.limit command used above sets the available memory to 24GB, ensuring that R has enough available space for large data frame operations. The following line shows how many characters are overall included in the corpus. </p>
+<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
+The “maxlen” variable here defines how long individual sentences are. Tweets are short so 40 will be enough. Sentences are the base unit which are learned by the network. “step” is the variable defining after how many letters the separator should advance to create a new sentence.</p>
+<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
+“text_indexes” is the operator for this function.</p>
+<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
+“sentences” is the first result we need here for further processing. It is a character list containing all forms sentences from the corpus:</p>
+
+	  <pre class="r"><code> # Sentences first lines
+> head(sentences)
+[1] "The Liberal Left, also known as the Demo" "Liberal Left, also known as the Democrat"
+[3] "ral Left, also known as the Democrats, w" "Left, also known as the Democrats, want "
+[5] ", also known as the Democrats, want to g" "so known as the Democrats, want to get r"
+
+cat("Number of sequences: ", length(sentences), "\n")
 </code></pre>
 
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-From the merged text we create a corpus. A corpus is the foundation to create a Term Document Matrix (TDM). We need a TDM because it has all words saved with a frequency information. Based on TDM Data we transform to a data frame our Wordcloud Packages can use to create a cloud with individually sized words.
-<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-I used the command stopwords two times here, because I copied junks of code from another script of mine. So, it runs in corpus generation and in TermDocumentMatrix generation. But it doesn't matter. This way you can copy and use both code parts seperately and still have a stopword exclusion active at any time.  Increased processing time is not an issue here unless you use huge amounts of text.
-<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">  
-Well, now we can start using the created TDM “whole” to create wordclouds from it. It’s called “whole” because all chapters have been collapsed into a single chapter before TDM transformation. It’s the content of the whole page we are using to create the clouds. But you can call it whatever…
-</p>
-	  <pre class="r"><code># a first try
-wordcloud2(whole, color = "random-light", backgroundColor = "grey")
+The next element we need is the character frame “next_chars”. If the “sentences” we have created are the questions asked, “next_chars” is the correct answer. The network is supposed to learn “next_chars” as the desired result we are looking for regarding each individual sentence. </p>
 
-# reduce the number of words to 200 and leave out the most frequent one ("cats")
-wordcloud2(whole[2:200,], color = "random-light", backgroundColor = "grey")
-</code></pre>
-  <div class="imgbox">
-<figure>
-  <img class="center-fit" src="/images/Catsv1.jpeg" alt="basic Wcloud" style="margin:25px auto;display:block"/>
-  <figcaption style="text-align:center"> Basic Wordcloud without any settings</figcaption>
-  </figure>
-  <figure>
-   <img class="center-fit" src="/images/Catsv2.jpeg" alt="basic Wcloud 199 words" style="margin:25px auto;display:block"/>
-   <figcaption style="text-align:center"> Using only 199 words, excluding the most frequent one: "cats"</figcaption>
-</figure>
-   </div>
-   <hr>
-   <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-First code line is the application of wordcloud2 in general with some basic features.</p>
-<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-In the second code chunk I reduced the number of used words to make the wordcloud more homogeneous. With the element whole[2:200,] instead of whole the number of words used from the whole data frame is reduced to 199 (from 2000+ words). This helps to limit the amount of extremely small and big words. Thus, the wordcloud is only using the words ranging from the second to the two hundredth word. "Cats" is out because it is extremely frequent and thus making everything else very small. I could rescale it manually by manipulating the data frame to make it more fitting. But with the second most frequent word "cat" we still have a good idea what the topic is, so I decided to just exclude the plural form.</p>
-<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-Now we experiment with color schemes and shapes...</p>
-	  <pre class="r"><code># Use different color schemes
-wordcloud2(whole[2:200,], color = "random-dark", backgroundColor = "black")
+	  <pre class="r"><code> # next_chars
+# This holds the targets (the follow-up characters)
+next_chars <- str_sub(text, text_indexes + maxlen, text_indexes + maxlen)
 
-# Use different shapes
-wordcloud2(whole[2:200,], shape = 'pentagon', size = 0.6, color = "skyblue")
+head(next_chars)
+> head(next_chars)
+[1] "c" "s" "a" "t" "e" "i"
 </code></pre>
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-The wordclouds2 package comes with several different shapes to adjust the form of the wordcloud. You can check different shapes by putting shape = 'pentagon'  into the command line.
-Furthermore, you can adjust size by putting size into the command. This increases or decreases the word size in proportion to the overall cloud.
-The command color = "random-dark" and "random-light" can be used to put different color sets into the cloud. The backgroundColor can also be adjusted to make your cloud more visually appealing. 
-</p>
- <div class="imgbox">
- <figure>
-  <img class="center-fit" src="/images/pentagon.jpeg" alt="environment" style="margin:25px auto;display:block"/>
-  <figcaption style="text-align:center"> Custom Shape "Pentagon"</figcaption>
-  </figure>
-  </div>
-  <hr>
-<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-Not happy? 
-Well. Me neither. Shapes are great, but even better it is if you can use a custom shape.
-Fortunately, wordcloud2 permits the use of custom silhouettes to form your individualized word cloud.</p>
-<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-You do need to get a properly saved and edited silhouette though. It must be in .gif or .png form and it has to contain transparency information. So basically, any file used for this has only black pixels for zones that can be filled by words and transparent zones that cannot be filled with words. The shape should not contain any other colors and transparency must be saved correctly. You might want to use a professional image-editing program like Photoshop to prepare or edit such a shape with the correct properties. We will use this one for further testing:</p>
-<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-The silhouette is then saved and accessed in a folder (we use the default option here): 
-figPath = system.file("examples/cats.png",package = "wordcloud2")
-(This folder is in your system file folder, probably in C:\Users\Username\Documents\R\win-library\3.4\wordcloud2\examples - if you use default settings)</p>
-<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-The code in R to include the shape is the following:</p>
-	  <pre class="r"><code># Use a Cat Shape
-figPath = system.file("examples/cats.png",package = "wordcloud2")
-wordcloud2(whole[2:1000,], figPath = figPath, size = 1.4, color = "random-light", backgroundColor = "black")
+As you can see by comparing the head of sentences and the head of next_chars, we basically show the network a sentence and then we show it the correct letter that follows, teaching it to write like the twitter user, one letter at a time.</p>
 
-# If you have the package extrafont installed you can also change the font:
-library(extrafont)
-fonttable()
-wordcloud2(whole[2:1000,], figPath = figPath, fontFamily = 'Tahoma', size = 1.2, color = "random-light", backgroundColor = "black")
-wordcloud2(whole[2:1000,], figPath = figPath, fontFamily = 'Taffy', size = 1.2, color = "random-light", backgroundColor = "black")
-wordcloud2(whole[2:1000,], figPath = figPath, fontFamily = 'Brush Script MT', size = 1.4, color = "random-light", backgroundColor = "black")
-</code></pre>
-<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-You may need to adjust size=X.X or other parameters to fit the words better to your custom shape form.
-You also have to adjust your output window size in RStudio. You should make sure that the output window size corresponds with the size of your silhouette. If the output frame is too small, the whole cloud might not appear at all. If the proportions are different, your shape might get stretched or squeezed.
-My environment during creating this cloud looked like this:</p>
- <div class="imgbox">
- <figure>
-  <img class="center-fit" src="/images/catsv3000.jpg" alt="environment" style="margin:25px auto;display:block"/>
-  <figcaption style="text-align:center"> Working with Wordclouds</figcaption>
-  </figure>
-  </div>
-  <hr>
-<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-There are a million things to optimize here: first of all, we still have verbs and filler words in our wordcloud that might be excluded. You can just inspect your dataframe and edit them out by some simple data frame commands like whole[-8,] = newframe, excluding word number 8 from the table.</p>
-<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-You also could change the font style of your wordcloud if you got the extrafont package installed and properly configured, as shown in the code above.
-</p>
-<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-Some of the final results:</p>
- <div class="imgbox">
- <figure>
-  <img class="center-fit" src="/images/catsv3001.jpg" alt="environment" style="margin:25px auto;display:block"/>
-  <figcaption style="text-align:center"> Acceptable Result</figcaption>
-  </figure>
-  </div>
- <div class="imgbox">
- <figure>
-  <img class="center-fit" src="/images/catsv4000.jpg" alt="environment" style="margin:25px auto;display:block"/>
-  <figcaption style="text-align:center"> Changing Font</figcaption>
-  </figure>
-  </div>
 <hr>
-<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-I hope this little guide helped to understand how elegant wordclouds can be generated in R. The wordclouds2 package offers a lot of relatively simple solutions to create beautiful effects, shapes and color templates for your wordclouds. Using an API for HTML content is also a very useful gadget and might also be used for less artistic and more analytical tasks. </p>
+<hr>
+<hr>
+<hr>
+<hr>
+
+
 <hr>
 
 	  <div class="w3-row">
