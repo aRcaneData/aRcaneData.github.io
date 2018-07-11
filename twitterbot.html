@@ -78,6 +78,7 @@ and is wrapped around the whole page content, except for the footer in this exam
 
     <div class="w3-container">
 	<h3><b>Required Software, Packages and Setup</b></h3>
+	<br>
       <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
 This is supposed to be a short tutorial about teaching Neural Networks imitating human created content. Some understanding of ANNs, the R programming language and APIs is required to successful run this tutorial. But I will try to keep this as simple as possible.</p>
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
@@ -93,7 +94,7 @@ You will need a twitter account and you need to register an API with twitter. Ho
 <h3><b>Loading a userTimeline from Twitter</b></h3>  
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
 All required Packages for loading data from the Twitter API </p>
-
+<br>
 	  <pre class="r"><code> # R Twitterbot
 #Setup
 install.packages("rtweet")            # Twitter R Packages to access API 
@@ -114,7 +115,7 @@ create_token(
  # Loading a UserTimeline including all recent tweets
 tmdonald <- get_timelines("realdonaldtrump", n = 3200) 
 </code></pre>
-
+<br>
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
 Rtweet generates a convenient data frame of your request. </p>
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
@@ -125,7 +126,7 @@ Variables collected by the API are for example “created_at”, “status_id”
 The important content for the Twitter Bot is in the column “text”</p>
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
 To further process this content, we need to separate it and put it in the right shape for our neural network to learn it. We also clean the tweets from Symbols, Links, Emojis and Code chunks... </p>
-
+<br>
 	  <pre class="r"><code> # Transform text-data
 dtext <- as.vector(tmdonald$text)
 head(dtext)
@@ -146,6 +147,7 @@ text5 <- iconv(text4, "latin1", "ASCII", sub="")
 # write a textfile with your content
 writeLines(text5, "testdt5.txt")
 </code></pre>
+<br>
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
 After completely processing and cleaning the text I recommend writing a textfile in .txt form to check your content thoroughly. Remember, if you include any strange signs, links or code chunk, your neural network will learn them as part of the text and consider them a desired outcome to produce. </p>
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
@@ -159,14 +161,14 @@ Any undesired symbols or links in the plain text might ruin the quality of the f
   <hr>
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
 After checking it well, we just need to collapse everything into one paragraph and it is ready for the ANN.(I left the @-Parts in on purpose by the way, make it look more like a tweet!) </p>
-
+<br>
 	  <pre class="r"><code> # Collapsing the text
 text <- paste(text5, collapse = ", ")</code></pre>
-
+<br>
 <h3><b>Making a neural Network learn and imitate</b></h3>
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
 Let’s start keras, allocate enough memory and get ready. Then we define the way the Network builds sequences from our text</p>
-
+<br>
 <pre class="r"><code> # keras for networks and stringr for a convenient code implementation
 library("keras")
 library("stringr")
@@ -186,6 +188,7 @@ text_indexes <- seq(1, nchar(text) - maxlen, by = step)
 
 sentences <- str_sub(text, text_indexes, text_indexes + maxlen - 1)
 </code></pre>
+<br>
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
 The memory.limit command used above sets the available memory to 24GB, ensuring that R has enough available space for large data frame operations. The following line shows how many characters are overall included in the corpus. </p>
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
@@ -194,7 +197,7 @@ The “maxlen” variable here defines how long individual sentences are. Tweets
 “text_indexes” is the operator for this function.</p>
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
 “sentences” is the first result we need here for further processing. It is a character list containing all forms sentences from the corpus:</p>
-
+<br>
 	  <pre class="r"><code> # Sentences first lines
 > head(sentences)
 [1] "The Liberal Left, also known as the Demo" "Liberal Left, also known as the Democrat"
@@ -203,10 +206,10 @@ The “maxlen” variable here defines how long individual sentences are. Tweets
 
 cat("Number of sequences: ", length(sentences), "\n")
 </code></pre>
-
+<br>
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
 The next element we need is the character frame “next_chars”. If the “sentences” we have created are the questions asked, “next_chars” is the correct answer. The network is supposed to learn “next_chars” as the desired result we are looking for regarding each individual sentence. </p>
-
+<br>
 	  <pre class="r"><code> # next_chars
 # This holds the targets (the follow-up characters)
 next_chars <- str_sub(text, text_indexes + maxlen, text_indexes + maxlen)
@@ -215,9 +218,130 @@ head(next_chars)
 > head(next_chars)
 [1] "c" "s" "a" "t" "e" "i"
 </code></pre>
+<br>
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
 As you can see by comparing the head of sentences and the head of next_chars, we basically show the network a sentence and then we show it the correct letter that follows, teaching it to write like the twitter user, one letter at a time.</p>
+<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
+We also need a mapping of all unique characters included in our text. The following code wuth the cat() command returns the number of all unique characters in the data. This works like a dictionary for letters included in our framework, to associate all symbols and letters with a specific number. </p>
+<br>
+	  <pre class="r"><code> # List of unique characters in the corpus
+chars <- unique(sort(strsplit(text, "")[[1]]))
+cat("Unique characters:", length(chars), "\n")
 
+# Dictionary mapping unique characters to their index in `chars`
+char_indices <- 1:length(chars) 
+names(char_indices) <- chars
+</code></pre>
+<br>
+<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
+The next step is to change our sentences to a data form which can be accessed and interpreted by a network.</p>
+<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
+One-Hot-Encoding is the method of choice if you want to implement Data in neural network settings. </p>
+<br>
+	  <pre class="r"><code> cat("Vectorization...\n") 
+x <- array(0L, dim = c(length(sentences), maxlen, length(chars)))
+y <- array(0L, dim = c(length(sentences), length(chars)))
+for (i in 1:length(sentences)) {
+  sentence <- strsplit(sentences[[i]], "")[[1]]
+  for (t in 1:length(sentence)) {
+    char <- sentence[[t]]
+    x[i, t, char_indices[[char]]] <- 1
+  }
+  next_char <- next_chars[[i]]
+  y[i, char_indices[[next_char]]] <- 1
+}
+</code></pre>
+<br>
+<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
+Now we got everything ready to start feeding the Network!</p>
+<br>
+	<h3><b>Building the ANN</b></h3>
+<br>
+	  <pre class="r"><code> ### ANN Model
+
+## Clear any old model in your environment
+rm(model)
+
+## Form new Model
+model <- keras_model_sequential() %>% 
+  layer_lstm(units = 150, input_shape = c(maxlen, length(chars))) %>% 
+  layer_dense(units = 50) %>%
+  layer_dense(units = length(chars), activation = "softmax")
+</code></pre>
+<br>
+<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
+Data, in the form of “length(chars)” – the number of all unique symbols in the data – enters.</p>
+<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
+It runs through a layer of 150 nodes, followed by a dense layer of 50 nodes, followed by a dense layer again in the length of the “chars” list.</p>
+<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
+This is a simple network for the purpose of demonstrating the method, but a little more configuration is still required regarding the optimizer, compilation and the development of a sampling routine:</p>
+<br>
+	  <pre class="r"><code> ## Optimizer
+optimizer <- optimizer_rmsprop(lr = 0.01)
+
+## Compilation
+model %>% compile(
+  loss = "categorical_crossentropy", 
+  optimizer = optimizer
+) 
+
+## Sampling routine
+
+sample_next_char <- function(preds, temperature = 0.5) {
+  preds <- as.numeric(preds)
+  preds <- log(preds) / temperature
+  exp_preds <- exp(preds)
+  preds <- exp_preds / sum(exp_preds)
+  which.max(t(rmultinom(1, 1, preds)))
+} 
+</code></pre>
+<br>
+
+<br>
+	  <pre class="r"><code> ## Fit the network
+# Run the data for 20 epochs on our configurated model
+model %>% fit(x, y, batch_size = 200, epochs = 20) 
+</code></pre>
+<br>
+
+<br>
+	  <pre class="r"><code> # Select a text seed at random
+start_index <- sample(1:(nchar(text) - maxlen - 1), 1)  
+seed_text <- str_sub(text, start_index, start_index + maxlen - 1)
+
+# Run at different temperatures
+cat("--- Generating with seed:", seed_text, "\n\n")
+
+for (temperature in c(0.2, 0.3, 0.4, 0.5, 0.6, 0.9)) {
+  
+  cat("------ temperature:", temperature, "\n")
+  cat(seed_text, "\n")
+  
+  generated_text <- seed_text
+  
+  # We generate 400 characters
+  for (i in 1:800) {
+    
+    sampled <- array(0, dim = c(1, maxlen, length(chars)))
+    generated_chars <- strsplit(generated_text, "")[[1]]
+    for (t in 1:length(generated_chars)) {
+      char <- generated_chars[[t]]
+      sampled[1, t, char_indices[[char]]] <- 1
+    }
+    
+    preds <- model %>% predict(sampled, verbose = 0)
+    next_index <- sample_next_char(preds[1,], temperature)
+    next_char <- chars[[next_index]]
+    
+    generated_text <- paste0(generated_text, next_char)
+    generated_text <- substring(generated_text, 2)
+    
+    cat(next_char)
+  }
+  cat("\n\n")
+}
+</code></pre>
+<br>
 <hr>
 <hr>
 <hr>
