@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html>
-<title>aRcane Data Blog - Twitter Bot</title>
+<title>aRcane Data Blog - Impressum</title>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
@@ -69,285 +69,23 @@ and is wrapped around the whole page content, except for the footer in this exam
 <div class="w3-col l8 s12">
   <!-- Blog entry -->
   <div class="w3-card-4 w3-margin w3-white">
-  <img src="/images/Twitter-Bot2.jpg" alt="Wall-E" style="width:100%">
+  <img src="/images/tree.jpg" alt="tree" style="width:100%">
     <div class="w3-container">
-      <h2><b>Training a neural network to imitate Twitter user</b></h2>
-      <h3>Building a Trump-Bot that tweets, <span class="w3-opacity">July 3, 2018</span></h4>
-	  <h4>Can robots tweet as crazy as the American President? Well let's find out... How to use a Twitter API and the keras Package in R to make a network learn and simulate presidential tweets.</h4>
-    </div>
+      <h2><b>Impressum </b></h2>
+      <h3><span class="w3-opacity"></span></h4>
+	  <h4>Felix Ettensperger</h4>
+	  <h4>Hofackerstraße 38</h4>
+      <h4>79110 Freiburg</h4>
+	  <h4>Tel. 0171/7081609</h4>
+	  <h4>eMail: felix.ettensperger@politik.uni-freiburg.de</h4><br>
+	  <hr>
+	 <h4>Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV:</h4><br>
+	 <h4>Felix Ettensperger</h4><br>
+	 </div>
 
-    <div class="w3-container">
-	<h3><b>Required Software, Packages and Setup</b></h3>
-	<br>
-      <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-This is supposed to be a short tutorial about teaching Neural Networks imitating human created content. Some understanding of ANNs, the R programming language and APIs is required to successful run this tutorial. But I will try to keep this as simple as possible.</p>
-<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-First you want a current version of R (>3.4.4) and probably RStudio (>1.8.4) installed on your System. </p>
-<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-To run Keras in R you will also need Anaconda including Python 3.6+ or something similar pre-installed. </p>
-<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-After installing Keras in R you need to connect it to your Anaconda/Python Environment. How to properly set it up is explained in detail in various blogs and pages, for example here: -Link-</p>
-<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-But before we focus on the neural network part of this project, lets get our Twitter data first. </p>
-<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-You will need a twitter account and you need to register an API with twitter. How to do this is found here: -Link-</p>
-<h3><b>Loading a userTimeline from Twitter</b></h3>  
-<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-All required Packages for loading data from the Twitter API </p>
-<br>
-	  <pre class="r"><code> # R Twitterbot
-#Setup
-install.packages("rtweet")            # Twitter R Packages to access API 
- 
-# Loading the Package
-library(rtweet)
 
-# Authenticate with your token
-## access token method: create token and save it as an environment variable
-## You need to create a Twitter Account and configure it accordingly first
-create_token(
-  app = "Your_twitter_api",
-  consumer_key = "yourconsumerkey",
-  consumer_secret = "yourconsumersecret",
-  access_token = "youraccesstoken",
-  access_secret = "youraccesssecret")
 
- # Loading a UserTimeline including all recent tweets
-tmdonald <- get_timelines("realdonaldtrump", n = 3200) 
-</code></pre>
-<br>
-<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-Rtweet generates a convenient data frame of your request. </p>
-<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-For this timeline generated in the end of June 2018 from the American President I got a data frame with 3195 entries and 88 Variables for each tweet.</p>
-<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-Variables collected by the API are for example “created_at”, “status_id” or “media_url” giving you a lot of extra information regarding when, where and with what device the tweet was generated and what objects were included (images/videos/links).</p>
-<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-The important content for the Twitter Bot is in the column “text”</p>
-<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-To further process this content, we need to separate it and put it in the right shape for our neural network to learn it. We also clean the tweets from Symbols, Links, Emojis and Code chunks... </p>
-<br>
-	  <pre class="r"><code> # Transform text-data
-dtext <- as.vector(tmdonald$text)
-head(dtext)
-
-# Delete all hyperlinks from the data
-text2 = gsub("(f|ht)tp(s?)://(.*)[.][a-z]+", "", dtext)
-
-# Delete strange Symbols
-text3 = gsub("&amp;", "", text2)
-
-# Delete Slash links and code artefacts
-text4 = gsub("/(.*)+", "", text3)
-
-# Only keep viable latin letters excluding all flags, emojis and strange ASCII signs. 
-# If you work with russian or chinese texts, this could be problematic and you might use a different method here. 
-text5 <- iconv(text4, "latin1", "ASCII", sub="")
-
-# write a textfile with your content
-writeLines(text5, "testdt5.txt")
-</code></pre>
-<br>
-<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-After completely processing and cleaning the text I recommend writing a textfile in .txt form to check your content thoroughly. Remember, if you include any strange signs, links or code chunk, your neural network will learn them as part of the text and consider them a desired outcome to produce. </p>
-<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-Any undesired symbols or links in the plain text might ruin the quality of the following steps, so be very rigorous here!</p>
- <div class="imgbox">
- <figure>
-  <img class="center-fit" src="/images/text5.jpg" alt="environment" style="margin:25px auto;display:block"/>
-  <figcaption style="text-align:center"> What your text file might look like</figcaption>
-  </figure>
-  </div>
-  <hr>
-<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-After checking it well, we just need to collapse everything into one paragraph and it is ready for the ANN.(I left the @-Parts in on purpose by the way, make it look more like a tweet!) </p>
-<br>
-	  <pre class="r"><code> # Collapsing the text
-text <- paste(text5, collapse = ", ")</code></pre>
-<br>
-<h3><b>Making a neural Network learn and imitate</b></h3>
-<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-Let’s start keras, allocate enough memory and get ready. Then we define the way the Network builds sequences from our text</p>
-<br>
-<pre class="r"><code> # keras for networks and stringr for a convenient code implementation
-library("keras")
-library("stringr")
-memory.limit(size = 24000)
-
-cat("Corpus length:", nchar(text), "\n")
-
-# Checking setup
-head(text)
-nchar(text)
-
-maxlen <- 40  # Length of extracted character sequences
-
-step <- 4  # We sample a new sequence every `step` characters
-
-text_indexes <- seq(1, nchar(text) - maxlen, by = step)
-
-sentences <- str_sub(text, text_indexes, text_indexes + maxlen - 1)
-</code></pre>
-<br>
-<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-The memory.limit command used above sets the available memory to 24GB, ensuring that R has enough available space for large data frame operations. The following line shows how many characters are overall included in the corpus. </p>
-<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-The “maxlen” variable here defines how long individual sentences are. Tweets are short so 40 will be enough. Sentences are the base unit which are learned by the network. “step” is the variable defining after how many letters the separator should advance to create a new sentence.</p>
-<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-“text_indexes” is the operator for this function.</p>
-<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-“sentences” is the first result we need here for further processing. It is a character list containing all forms sentences from the corpus:</p>
-<br>
-	  <pre class="r"><code> # Sentences first lines
-> head(sentences)
-[1] "The Liberal Left, also known as the Demo" "Liberal Left, also known as the Democrat"
-[3] "ral Left, also known as the Democrats, w" "Left, also known as the Democrats, want "
-[5] ", also known as the Democrats, want to g" "so known as the Democrats, want to get r"
-
-cat("Number of sequences: ", length(sentences), "\n")
-</code></pre>
-<br>
-<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-The next element we need is the character frame “next_chars”. If the “sentences” we have created are the questions asked, “next_chars” is the correct answer. The network is supposed to learn “next_chars” as the desired result we are looking for regarding each individual sentence. </p>
-<br>
-	  <pre class="r"><code> # next_chars
-# This holds the targets (the follow-up characters)
-next_chars <- str_sub(text, text_indexes + maxlen, text_indexes + maxlen)
-
-head(next_chars)
-> head(next_chars)
-[1] "c" "s" "a" "t" "e" "i"
-</code></pre>
-<br>
-<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-As you can see by comparing the head of sentences and the head of next_chars, we basically show the network a sentence and then we show it the correct letter that follows, teaching it to write like the twitter user, one letter at a time.</p>
-<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-We also need a mapping of all unique characters included in our text. The following code wuth the cat() command returns the number of all unique characters in the data. This works like a dictionary for letters included in our framework, to associate all symbols and letters with a specific number. </p>
-<br>
-	  <pre class="r"><code> # List of unique characters in the corpus
-chars <- unique(sort(strsplit(text, "")[[1]]))
-cat("Unique characters:", length(chars), "\n")
-
-# Dictionary mapping unique characters to their index in `chars`
-char_indices <- 1:length(chars) 
-names(char_indices) <- chars
-</code></pre>
-<br>
-<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-The next step is to change our sentences to a data form which can be accessed and interpreted by a network.</p>
-<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-One-Hot-Encoding is the method of choice if you want to implement Data in neural network settings. </p>
-<br>
-	  <pre class="r"><code> cat("Vectorization...\n") 
-x <- array(0L, dim = c(length(sentences), maxlen, length(chars)))
-y <- array(0L, dim = c(length(sentences), length(chars)))
-for (i in 1:length(sentences)) {
-  sentence <- strsplit(sentences[[i]], "")[[1]]
-  for (t in 1:length(sentence)) {
-    char <- sentence[[t]]
-    x[i, t, char_indices[[char]]] <- 1
-  }
-  next_char <- next_chars[[i]]
-  y[i, char_indices[[next_char]]] <- 1
-}
-</code></pre>
-<br>
-<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-Now we got everything ready to start feeding the Network!</p>
-<br>
-	<h3><b>Building the ANN</b></h3>
-<br>
-	  <pre class="r"><code> ### ANN Model
-
-## Clear any old model in your environment
-rm(model)
-
-## Form new Model
-model <- keras_model_sequential() %>% 
-  layer_lstm(units = 150, input_shape = c(maxlen, length(chars))) %>% 
-  layer_dense(units = 50) %>%
-  layer_dense(units = length(chars), activation = "softmax")
-</code></pre>
-<br>
-<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-Data, in the form of “length(chars)” – the number of all unique symbols in the data – enters.</p>
-<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-It runs through a layer of 150 nodes, followed by a dense layer of 50 nodes, followed by a dense layer again in the length of the “chars” list.</p>
-<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-This is a simple network for the purpose of demonstrating the method, but a little more configuration is still required regarding the optimizer, compilation and the development of a sampling routine:</p>
-<br>
-	  <pre class="r"><code> ## Optimizer
-optimizer <- optimizer_rmsprop(lr = 0.01)
-
-## Compilation
-model %>% compile(
-  loss = "categorical_crossentropy", 
-  optimizer = optimizer
-) 
-
-## Sampling routine
-
-sample_next_char <- function(preds, temperature = 0.5) {
-  preds <- as.numeric(preds)
-  preds <- log(preds) / temperature
-  exp_preds <- exp(preds)
-  preds <- exp_preds / sum(exp_preds)
-  which.max(t(rmultinom(1, 1, preds)))
-} 
-</code></pre>
-<br>
-
-<br>
-	  <pre class="r"><code> ## Fit the network
-# Run the data for 20 epochs on our configurated model
-model %>% fit(x, y, batch_size = 200, epochs = 20) 
-</code></pre>
-<br>
-
-<br>
-	  <pre class="r"><code> # Select a text seed at random
-start_index <- sample(1:(nchar(text) - maxlen - 1), 1)  
-seed_text <- str_sub(text, start_index, start_index + maxlen - 1)
-
-# Run at different temperatures
-cat("--- Generating with seed:", seed_text, "\n\n")
-
-for (temperature in c(0.2, 0.3, 0.4, 0.5, 0.6, 0.9)) {
-  
-  cat("------ temperature:", temperature, "\n")
-  cat(seed_text, "\n")
-  
-  generated_text <- seed_text
-  
-  # We generate 400 characters
-  for (i in 1:800) {
-    
-    sampled <- array(0, dim = c(1, maxlen, length(chars)))
-    generated_chars <- strsplit(generated_text, "")[[1]]
-    for (t in 1:length(generated_chars)) {
-      char <- generated_chars[[t]]
-      sampled[1, t, char_indices[[char]]] <- 1
-    }
-    
-    preds <- model %>% predict(sampled, verbose = 0)
-    next_index <- sample_next_char(preds[1,], temperature)
-    next_char <- chars[[next_index]]
-    
-    generated_text <- paste0(generated_text, next_char)
-    generated_text <- substring(generated_text, 2)
-    
-    cat(next_char)
-  }
-  cat("\n\n")
-}
-</code></pre>
-<br>
-<hr>
-<hr>
-<hr>
-<hr>
-<hr>
-
+</div>
 
 <hr>
 
@@ -359,80 +97,9 @@ for (temperature in c(0.2, 0.3, 0.4, 0.5, 0.6, 0.9)) {
         </div>        
       </div>
     </div>
-  </div>
 <!-- END BLOG ENTRIES -->
 </div>
 
-<!-- Introduction menu -->
-<div class="w3-col l4">
-  <!-- About Card -->
-  <div class="w3-card w3-margin w3-margin-top">
-  <img src="/images/avatar.jpg" style="width:100%">
-    <div class="w3-container w3-white">
-      <h4><b>Felix Ettensperger, M.A.</b></h4>
-      <p style="margin-bottom: 20px"><span>Hi, my name is Felix Ettensperger, I'm 32 years old and living in Germany.
-I'm currently a Ph.D. student at the University of Freiburg. </span></p>
-<p style="margin-bottom: 20px">I'm working in quantitative conflict research developing computer models, simulations and algorithms to predict inner-state conflicts worldwide.</p>
-<p style="margin-bottom: 20px">In the last year I have been working extensively with Machine Learning Algorithms (Random Forest, k-NN, Hard-Competitive Clustering and Neural Gas) and with Artificial Neural Networks using Keras, Theano and TensorFlow.<br>
-I'm also interested in text mining, quantitative content analysis and artificial text generation.</p>
-<p style="margin-bottom: 20px">About 3 years ago I started working intensively with R and about 1 year ago I started with Python.
-</p>
-    </div>
-  </div><hr>
-  
-  <!-- Posts -->
-  <div class="w3-card w3-margin">
-    <div class="w3-container w3-padding">
-      <h4>Used Programs and Packages</h4>
-    </div>
-    <ul class="w3-ul w3-hoverable w3-white">
-      <li class="w3-padding-16">
-        <img src="https://www.r-project.org/logo/Rlogo.png" alt="Image" class="w3-left w3-margin-right" style="width:60px">
-        <span class="w3-large">R Version 3.4.4</span><br>
-        <span>Base programming language</span>
-      </li>
-      <li class="w3-padding-16">
-        <img src="https://helloacm.com/wp-content/uploads/2017/10/R-studio.png" alt="Image" class="w3-left w3-margin-right" style="width:80px">
-        <span class="w3-large">R Studio</span><br>
-        <span>For usability and comfort</span>
-      </li> 
-      <li class="w3-padding-16">
-        <img src="/images/package.png" alt="Image" class="w3-left w3-margin-right" style="width:50px">
-        <span class="w3-large">Required Packages</span><br>
-        <span>rtweet, tm, keras, stringr </span>
-      </li>   
-      <li class="w3-padding-16 w3-hide-medium w3-hide-small">
-        <img src="/images/quotes.jpg" alt="Image" class="w3-left w3-margin-right" style="width:50px">
-        <span class="w3-large">Quote of the blogpost</span><br>
-        <span><i>A fool thinks himself to be wise, but a wise man knows himself to be a fool</i> - William Shakespeare</span>
-      </li>  
-    </ul>
-  </div>
-  <hr> 
- 
-  <!-- Labels / tags -->
-  <div class="w3-card w3-margin">
-    <div class="w3-container w3-padding">
-      <h4>Tags</h4>
-    </div>
-    <div class="w3-container w3-white">
-    <p><span class="w3-tag w3-black w3-margin-bottom">Data Science</span> <span class="w3-tag w3-light-grey w3-small w3-margin-bottom">R</span> <span class="w3-tag w3-light-grey w3-small w3-margin-bottom">Big Data</span>
-      <span class="w3-tag w3-light-grey w3-small w3-margin-bottom">Coding</span> <span class="w3-tag w3-light-grey w3-small w3-margin-bottom">Political Science</span> <span class="w3-tag w3-light-grey w3-small w3-margin-bottom">Text Mining</span>
-      <span class="w3-tag w3-light-grey w3-small w3-margin-bottom">Machine Learning</span>  <span class="w3-tag w3-light-grey w3-small w3-margin-bottom">Clustering</span> 
-    </p>
-    	  <ul class="w3-ul w3-hoverable w3-white">
-      <li class="w3-padding-16">
-        <img src="/images/arcanedata.gif" alt="Image" class="w3-left w3-margin-right" style="width:50px">
-        <a href="impressum.html">
-		<span class="w3-large">Impressum</span><br>
-        </a>
-		<span>>Blog Impressum</span>
-      </li>
-	</div>
-  </div>
-  
-<!-- END Introduction Menu -->
-</div>
 
 <!-- END GRID -->
 </div><br>
