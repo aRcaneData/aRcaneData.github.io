@@ -296,7 +296,16 @@ sample_next_char <- function(preds, temperature = 0.5) {
 } 
 </code></pre>
 <br>
-
+<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
+Now the processing and learning begins. In the model fit that follows below a batch_size of 200 is used together with 20 iterations. </p>
+<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
+Batch_size defines the number of samples that going to be propagated through the network at once. Higher batch size means faster calculation, but maybe results might be stuck at local minimums or training results might not reach an desired optimum. For a test 200 is acceptable. Play around with it to improve results.</p>
+<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
+20 Iterations is also the absolute minimum I recommend in this setting. This setting configurates the number of times, our data passes completely through the network.</p>
+<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
+More iterations is usually better for results, but after a while the network might stops improving or starts degenerating. I our tweet example 20 iterations is far away from reaching that point. </p>
+<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
+Yet with batch_size 200 and 20 iterations running the data through the network might take up to 30 minutes or more, depending on your hardware. </p>
 <br>
 	  <pre class="r"><code> ## Fit the network
 # Run the data for 20 epochs on our configurated model
