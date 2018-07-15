@@ -312,7 +312,10 @@ Yet with batch_size 200 and 20 iterations running the data through the network m
 model %>% fit(x, y, batch_size = 200, epochs = 20) 
 </code></pre>
 <br>
-
+<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
+After passing all the data 20 times through your network, it should be able to make substantial predictions about the letter order of new content. Of course, the network does not understand what it writes, yet it learns a great deal about grammar, which vocabulary is used in the original data and how to continue from an example sentence onwards.</p>
+<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
+With the following code we sample a random 40 letter sentence and give it to the network to continue it for the next 400 letters. We use different “temperatures” to sample the setting. Temperature is the degree of randomization present in the prediction.</p>
 <br>
 	  <pre class="r"><code> # Select a text seed at random
 start_index <- sample(1:(nchar(text) - maxlen - 1), 1)  
@@ -350,12 +353,55 @@ for (temperature in c(0.2, 0.3, 0.4, 0.5, 0.6, 0.9)) {
   cat("\n\n")
 }
 </code></pre>
+<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
+When you look at the results, remember that it just scanned sentences of 40 letters and predicted just one letter at a time. Yet such a network can figure out when to write big and small, it forms coherent words and uses certain expressions together that correspond in topic and form. Some sentences might even make sense, because they repeat and combine coherent expressions.
+Others have demonstrated, that such a network can even learn to rhyme and acquire a certain poetic form (if trained with e.g. Shakespeare).</p>
+<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
+Well our Donald Bot is for obvious reasons not so sophisticated. Its favorite word is fake news (who would have thought that!) and its style is rather blunt.</p>
+<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
+Example:</p>
 <br>
-<hr>
-<hr>
-<hr>
-<hr>
-<hr>
+	  <textarea name="text" cols="25" rows="5"
+	  style="width:96%;height:380px;"> # random sample: ". Chuck Schumer sold John McCain a bill"   - everything what follows after that is ANN prediction!
+	  # Predicted at various temperatures: 0.1, 0.2, 0.3, 0.7, 1.0, 1.2
+> generated_text
+------ temperature: 0.1 
+. Chuck Schumer sold John McCain a bill  
+on the into the honor to streng. Sadly, we have taken a great the FBI and the Democrats are the great to see the words, the Democrats are the worders, but will be a to a puction who was any decaded to help record to help record to all of the words, the Military, and a farmers, we are the great to considers and the words on the into the honor to streng...Security and the words on the words, the Democrats are the worders, and the Democrats are the great to see the words, the Democrats are the great to see the words, the words on the words, the Democrats are the great to considers and the words on the words, the Democrats are the worders, but the Democrats are the great to see the words, the words on the words, the Democrats are the great to see the words, the Democrats are the great to consi
+
+------ temperature: 0.2 
+. Chuck Schumer sold John McCain a bill  
+of the words, the Fake News Media will be a to a puccers and the words on the into a closed to her and a great the FBI and the Fake News Media where are rest and the words on the Senate was any decades and the economy, I am procease to a participate of the into the honor to help us the words of the Senate was any decades, the Fake News Media will be a to the FBI and the Fake News Media will be a to the Fake News Media will be a to be in the words, the into the honor to help record to all of the words, where is a country. It is a great the Fake News Media should be a to conders and smart. I am concere to our country, and the words of the Senate was any decades!, So trues in a long to the FBI and the Fake News Media will be a to be arting of the Fake News Media will be a to the FBI and the U
+
+------ temperature: 0.3 
+. Chuck Schumer sold John McCain a bill  
+in the words, and the words on the Fake News Media decision and trade deals in the words, the into the country on the Senate Deficence in the how the FBI. India and the U.S. and the words on the into all the received site! We to the how the FBI and the words, the U.S. I am contion who does to a control to decision!, I am to see the leaders of the Senate Department of the Fake News Media will be into the end in a long to the FBI and the Senate Deficencent and the Democrats are the worders, but will be a to contror the Fake News Media will always in the Senate will be a to all of the words, the CISHILT,0 OR CORS!, I am plegislice who have the great record to a never decein at the Fake News Media will be a to coming increase shows and the news will be a strong and the Military, and the worder
+
+------ temperature: 0.7 
+. Chuck Schumer sold John McCain a bill  
+of the worders, and action! No many years, and the economy is all of logal is now that has agend to I continess. Our strung. I am sturn. Must contror be given needed!, Great to Collusion next, Clice and Streming and the manufact the Unite President! , Schumers, we put true crook done on Americas was now serve us in the families, and prosement with its for the Military, and in a longer the washing to keep plunn be control leadership on the last times just a greed the worders, but the Clinton!R, Many years, doing possible to at a now ever!, Why dont back Mexico AMERICA GREAT Ago in a great the Canada were investment of the Democrats want to serve a bot the sacrifice with King! , Great job. Marte in ObamaCare, I was a migration, record to strong borters - showed where is worddles will be open
+
+------ temperature: 1 
+. Chuck Schumer sold John McCain a bill  
+on Texas! , Anering. The @Republican Chargest  much despection of!., We are NEDRT!, God 1GR, Confedics. Eve stated legal is a spy as Keally who have RepuBi seaus, I talk a canders made a to special peadensy to get worders! Donesident! #HCOBOR words, thouseed a honor to honored and S.CI!, Flanena kealing entore need! Jews at a raqualive Serving, chandatided senet to poor of inille tax recovers: @fice incesss. #USA, rectest women showed the middle spare!, The Econession: The Republicans would ageme, pous is dobes in continence shop a sacrool she phooe strong tich areing. He could to tax strecty viiman more in American coparal leadersh, My yausly on true. Osiont, I am crove  his cinems to be the past would consel terrar if the Democrats whuargh, of he has enee brade Happ zo and imiect if pas
+
+------ temperature: 1.2 
+. Chuck Schumer sold John McCain a bill  
+be fietding @ASP., A froe surputed have caking about China. Bodor went!, Why have alkifid of - a letering ather ready to Aupzone Melanse. Mointter of Bordersc: , ObamaCare!, by to the @COUnPanam, But were firBus and counters.  :00 A what the OF HO@BILD FBI!, Boblicers, Russias, record to le to see how oth@Irabies decisial, lI great!, My Goddlim) and Sil., let it: heltry @NawanToryHenttraforce, F-1gissance , Will be done in the Lugists or 4- SNOND to conders for untin. #USA #IndNecativerSy, ......jue killsbest crip  IThirsmations Cointon).
+Reptice and StheFB Americas again!
+#T SUSSI VORE!C unjerEAL! , Anere!  Spoke for strong! , If is trulys, the Stupaba, Tod for your 31 neFtiders, not onver voted of so me(ting for our country out tIMly  her. I am innoced to confice of JusticeW!, MAKE CM, 
+</textarea>
+<br>
+<br>
+<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
+If the Network is trained for more iterations and better adjusted batch size, you can easily take entire predictions as tweets. Because we just trained it a little bit and used a simple setup for the network, we have to select the viable stuff and discard the rest.</p>
+<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
+Now let’s take some artistic license and form a nice tweet from this content:</p>
+
+
+
+<br>
+
 
 
 <hr>
