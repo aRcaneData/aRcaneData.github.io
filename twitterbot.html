@@ -73,12 +73,12 @@ and is wrapped around the whole page content, except for the footer in this exam
     <div class="w3-container">
       <h2><b>Training a neural network to imitate Twitter user</b></h2>
       <h3>Building a Trump-Bot that tweets, <span class="w3-opacity">July 3, 2018</span></h4>
-	  <h4>Can robots tweet as crazy as the American President? Well let's find out... How to use a Twitter API and the keras Package in R to make a network learn and simulate presidential tweets.</h4>
+	  <h4>Can robots tweet as crazy as the American President? Well let's find out... How to use a Twitter API and the keras package in R to make a network learn and simulate presidential tweets.</h4>
     </div>
 
     <div class="w3-container">
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-This R-Guide is inspired by an MIT Deep Learning Project done in 2016. You can find more infos to the original MIT Trump Bot here: <a href="https://www.theguardian.com/technology/2016/mar/04/donald-trump-deep-drumpf-twitter-bot">Deep Trumpf</a></p>
+This R Guide is inspired by a MIT Deep Learning Project done in 2016. You can find more information about the original MIT Trump Bot here: <a href="https://www.theguardian.com/technology/2016/mar/04/donald-trump-deep-drumpf-twitter-bot">Deep Drumpf</a></p>
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">	
 I decided to post a guide on how to do it yourself.
 </p>
@@ -87,13 +87,13 @@ I decided to post a guide on how to do it yourself.
       <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
 This is supposed to be a short tutorial about teaching Neural Networks imitating human created content. Some understanding of ANNs, the R programming language and APIs is required to successful run this tutorial. But I will try to keep this as simple as possible.</p>
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-First you want a current version of R (>3.4.4) and probably RStudio (>1.8.4) installed on your System. </p>
+First you want a current version of R (>3.4.4) and probably RStudio (>1.8.4) installed on your system. </p>
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
 To run Keras in R you will also need Anaconda including Python 3.6+ or something similar pre-installed. </p>
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-After installing Keras in R you need to connect it to your Anaconda/Python Environment. How to properly set it up is explained in detail in various blogs and pages, for example here: -Link-</p>
+After installing Keras in R you need to connect it to your Anaconda/Python Environment. How to properly set it up is explained in detail in various blogs and pages, for example here:  <a href="https://elitedatascience.com/keras-tutorial-deep-learning-in-python">Configure Python</a> / <a href="https://blog.rstudio.com/2017/09/05/keras-for-r/">Keras in R</a> </p>
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-But before we focus on the neural network part of this project, lets get our Twitter data first. </p>
+But before we focus on the neural network part of this project, lets get our twitter data first. </p>
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
 You will need a twitter account and you need to register an API with twitter. How to do this is found here: <a href="https://developer.twitter.com/en/docs/basics/authentication/guides/access-tokens.html">Create APP and Generate Token</a></p>
 <h3><b>Loading a userTimeline from Twitter</b></h3>  
@@ -124,13 +124,13 @@ tmdonald <- get_timelines("realdonaldtrump", n = 3200)
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
 Rtweet generates a convenient data frame of your request. </p>
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-For this timeline generated in the end of June 2018 from the American President I got a data frame with 3195 entries (tweets) and 88 Variables for each tweet.</p>
+For this timeline generated in the end of June 2018 from the American President I got a data frame with 3195 entries (tweets) and 88 variables for each tweet.</p>
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
 Variables collected by the API are for example “created_at”, “status_id” or “media_url” giving you a lot of extra information regarding when, where and with what device the tweet was generated and what objects were included (images/videos/links).</p>
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
 The important content for the Twitter Bot is in the column “text”</p>
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-To further process this content, we need to separate it and put it in the right shape for our neural network to learn it. We also clean the tweets from Symbols, Links, Emojis and Code chunks... </p>
+To further process this content, we need to separate it and put it in the right shape for our neural network to learn it. We also clean the tweets from symbols, links, emojis and any code chunks... </p>
 <br>
 	  <pre class="r"><code> # Transform text-data
 dtext <- as.vector(tmdonald$text)
@@ -165,14 +165,14 @@ Any undesired symbols or links in the plain text might ruin the quality of the f
   </div>
   <hr>
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-After checking it well, we just need to collapse everything into one paragraph and it is ready for the ANN.(I left the @-Parts in on purpose by the way, make it look more like a tweet!) </p>
+After checking it well, we just need to collapse everything into one paragraph and it is ready for the ANN.(I left the @-Symbols in on purpose by the way, to making it look more like a real tweet!) </p>
 <br>
 	  <pre class="r"><code> # Collapsing the text
 text <- paste(text5, collapse = ", ")</code></pre>
 <br>
-<h3><b>Making a neural Network learn and imitate</b></h3>
+<h3><b>Making a neural network learn and imitate</b></h3>
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-Let’s start keras, allocate enough memory and get ready. Then we define the way the Network builds sequences from our text</p>
+Let’s start keras, allocate enough memory and get ready. Then we define the way the network builds sequences from our text</p>
 <br>
 <pre class="r"><code> # keras for networks and stringr for a convenient code implementation
 library("keras")
@@ -197,7 +197,7 @@ sentences <- str_sub(text, text_indexes, text_indexes + maxlen - 1)
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
 The memory.limit command used above sets the available memory to 24GB, ensuring that R has enough available space for large data frame operations. The following line shows how many characters are overall included in the corpus. </p>
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-The “maxlen” variable here defines how long individual sentences are. Tweets are short so 40 will be enough. Sentences are the base unit which are learned by the network. “step” is the variable defining after how many letters the separator should advance to create a new sentence.</p>
+The “maxlen” variable here defines how long individual sentences are. Tweets are short so 40 will be enough. These sentences are the base unit which are learned by the network. “step” is the variable defining after how many letters the separator should advance to create a new sentence.</p>
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
 “text_indexes” is the operator for this function.</p>
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
@@ -213,7 +213,7 @@ cat("Number of sequences: ", length(sentences), "\n")
 </code></pre>
 <br>
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-The next element we need is the character frame “next_chars”. If the “sentences” we have created are the questions asked, “next_chars” is the correct answer. The network is supposed to learn “next_chars” as the desired result we are looking for regarding each individual sentence. </p>
+The next element we need is the character frame "next_chars". If the "sentences" we have created are the questions asked, "next_chars" is the correct answer. The network is supposed to learn "next_chars" as the desired result we are looking for regarding each individual sentence. </p>
 <br>
 	  <pre class="r"><code> # next_chars
 # This holds the targets (the follow-up characters)
@@ -241,7 +241,7 @@ names(char_indices) <- chars
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
 The next step is to change our sentences to a data form which can be accessed and interpreted by a network.</p>
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-One-Hot-Encoding is the method of choice if you want to implement Data in neural network settings. </p>
+One-Hot-Encoding is the default method of choice if you want to implement data in neural network settings. </p>
 <br>
 	  <pre class="r"><code> cat("Vectorization...\n") 
 x <- array(0L, dim = c(length(sentences), maxlen, length(chars)))
@@ -258,7 +258,7 @@ for (i in 1:length(sentences)) {
 </code></pre>
 <br>
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-Now we got everything ready to start feeding the Network!</p>
+Now we got everything ready to start feeding the network!</p>
 <br>
 	<h3><b>Building the ANN</b></h3>
 <br>
@@ -275,9 +275,9 @@ model <- keras_model_sequential() %>%
 </code></pre>
 <br>
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-Data, in the form of “length(chars)” – the number of all unique symbols in the data – enters.</p>
+Data, in the form of "length(chars)" – the number of all unique symbols in the data – enters.</p>
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-It runs through a layer of 150 nodes, followed by a dense layer of 50 nodes, followed by a dense layer again in the length of the “chars” list.</p>
+It runs through a layer of 150 nodes, followed by a dense layer of 50 nodes, followed by a dense layer again in the length of the "chars" list.</p>
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
 This is a simple network for the purpose of demonstrating the method, but a little more configuration is still required regarding the optimizer, compilation and the development of a sampling routine:</p>
 <br>
@@ -306,7 +306,7 @@ Now the processing and learning begins. In the model fit that follows below a ba
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
 Batch_size defines the number of samples that going to be propagated through the network at once. Higher batch size means faster calculation, but maybe results might be stuck at local minimums or training results might not reach an desired optimum. For a test 200 is acceptable. Play around with it to improve results.</p>
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-20 Iterations is also the absolute minimum I recommend in this setting. This setting configurates the number of times, our data passes completely through the network.</p>
+20 iterations is also the absolute minimum I recommend in this setting. This setting configurates the number of times, our data passes completely through the network.</p>
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
 More iterations is usually better for results, but after a while the network might stops improving or starts degenerating. I our tweet example 20 iterations is far away from reaching that point. </p>
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
@@ -320,7 +320,7 @@ model %>% fit(x, y, batch_size = 200, epochs = 20)
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
 After passing all the data 20 times through your network, it should be able to make substantial predictions about the letter order of new content. Of course, the network does not understand what it writes, yet it learns a great deal about grammar, which vocabulary is used in the original data and how to continue from an example sentence onwards.</p>
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-With the following code we sample a random 40 letter sentence and give it to the network to continue it for the next 400 letters. We use different “temperatures” to sample the setting. Temperature is the degree of randomization present in the prediction.</p>
+With the following code we sample a random 40 letter sentence and give it to the network to continue it for the next 400 letters. We use different "temperatures" to sample the setting. Temperature is the degree of randomization used in the prediction.</p>
 <br>
 	  <pre class="r"><code> # Select a text seed at random
 start_index <- sample(1:(nchar(text) - maxlen - 1), 1)  
@@ -359,10 +359,10 @@ for (temperature in c(0.2, 0.3, 0.4, 0.5, 0.6, 0.9)) {
 }
 </code></pre>
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-When you look at the results, remember that it just scanned sentences of 40 letters and predicted just one letter at a time. Yet such a network can figure out when to write big and small, it forms coherent words and uses certain expressions together that correspond in topic and form. Some sentences might even make sense, because they repeat and combine coherent expressions.
+When you look at the results, remember that it just scanned sentences of 40 letters and predicted just one letter at a time. Yet such a network can figure out when to write big and small letters (for example after full stop), it forms coherent words and uses certain expressions together that correspond in topic and form. Some sentences might even make sense, because they repeat and combine coherent expressions.
 Others have demonstrated, that such a network can even learn to rhyme and acquire a certain poetic form (if trained with e.g. Shakespeare).</p>
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-Well our Donald Bot is for obvious reasons not so sophisticated. Its favorite word is fake news (who would have thought that!) and its style is rather blunt.</p>
+Well our Donald Bot is for obvious reasons not so sophisticated. Its favorite word is fake news (who would have thought about that!) and its style is rather blunt.</p>
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
 Example:</p>
 <br>
@@ -401,7 +401,7 @@ Reptice and StheFB Americas again!
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
 If the Network is trained for more iterations and better adjusted batch size, you can easily take entire predictions as tweets. Because we just trained it a little bit and used a simple setup for the network, we have to select the viable stuff and discard the rest.</p>
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-Now let’s take some artistic license and form a nice tweet from this content:</p>
+Now let’s take some artistic license and form a nice tweet from 3 of its sentences:</p>
 <br>
 <blockquote class="twitter-tweet" data-lang="de"><p lang="en" dir="ltr">I am to see the leaders of the Senate Department of the Fake News Media will be into the end in a long to the FBI and the Senate. <br>Schumers, we put true crook done on Americas was now serve us in the families, ObamaCare! <a href="https://twitter.com/hashtag/USA?src=hash&amp;ref_src=twsrc%5Etfw">#USA</a></p>&mdash; fakePresident (@Yoronin) <a href="https://twitter.com/Yoronin/status/1019671849683312646?ref_src=twsrc%5Etfw">18. Juli 2018</a></blockquote>
 <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
