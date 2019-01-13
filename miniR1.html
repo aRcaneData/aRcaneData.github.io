@@ -93,16 +93,18 @@ In this script you fill in the following code to install 2 packages. You need to
 install.packages("ineq")
 install.packages("DescTools")
 
-# start the Packages (you have to do this every time you start R)
+# start the Package Ineq (you have to do this every time you start R)
 library(ineq)
-library(DescTools)</code></pre>
+</code></pre>
 
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-Now with all packages up and running we can start to work if we have got data ready.</p>
+Now with the package up and running we can start to work if we have got data ready.</p>
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
 If you dont have data available here is a short code element that allows you to create a segment of decile data to test the package.</p>
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-The provided numbers are the net equivalent income of german households per Decile of 2013 (Source: https://de.wikipedia.org/wiki/Einkommensverteilung_in_Deutschland)</p>
+The provided numbers are the net equivalent income of german household members per Decile of 2013 (Source: https://de.wikipedia.org/wiki/Einkommensverteilung_in_Deutschland)</p>
+<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
+The numbers for each decile indicate how much money a single household member in this Decile has available (taxes already excluded) to maintain her or himself.</p>
 
 	  <pre class="r"><code> ## Step 2: Create a list of numbers
 netincome <- c(826, 1142, 1399, 1630, 1847, 2070, 2332, 2659, 3156, 4329)
@@ -113,6 +115,8 @@ NI2013BRD <- as.data.frame(netincome)
 
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
 Now we add percentage numbers as a small addition and exercise.</p>
+<p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
+Later we can observe if this percentages are correctly added up in the GINI and Lorenz Curve calculations.</p>
 
 <pre class="r"><code> ## Step 4: Add percentages
 sumNI <- sum(netincome)
@@ -123,20 +127,23 @@ NI2013BRD$Percent <- GiniPercent
 
 
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-Now we have available data to test the 2 packages. The data frame should appear on your top-right corner as element.</p>
+Now we have a set of available data to test the ineq package. The data frame should appear on your top-right corner as element.</p>
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-To run the packages simple 1-liner of code are sufficient:</p>
+To run the package a simple 1-liner of code is most of the time sufficient:</p>
 
 	  <pre class="r"><code> ## Step 5: Create GINI Index and a corresponding Lorenz Curve
 ## Gini:
 ineq(NI2013BRD$netincome, type="Gini")
+## or better use:
+Gini(GiniBRD$Nettoeinkommen)
+
 
 ## Plot Lorenz Curve:
 plot(Lc(NI2013BRD$netincome), col="darkblue", lwd=2)
 </code></pre>
 
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-The first line of code should provide you with the GINI of the data frame ([1] 0.2536419) and the second line should open a plot. You should see a Lorenz Curve in the buttom-right corner of R Studio.
+The ineq or Gini line of code should provide you with the GINI of the data frame ([1] 0.2536419) and the second line should open a plot. You should see a Lorenz Curve in the buttom-right corner of R Studio.
 
 <div class="imgbox">
  <figure>
@@ -162,16 +169,16 @@ Lc(NI2013BRD$netincome)
    <hr>
    
    <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-Interestingly, using the LC command provides a different GINI Index for the provided data ($Gini [1] 0.2818243). What happened here?</p>
+Using the simple command Gini() calculates the Gini Index for the input data. If you use only a small number of groups - like quartiles or quintiles - usually you also want to use a correction method. This is simply applied by adding the corr=TRUE command. </p>
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-When we double check the results with the other package (DescTools), the results for the GINI Index is also 0.2818243. Test it yourself:</p>
+The corrected results for the GINI Index should be 0.2818243. Test it yourself:</p>
 
-	  <pre class="r"><code># Step 7: Use DescTools to create the GINI of the Data
-Gini(NI2013BRD$netincome)
+	  <pre class="r"><code># Step 7: Use ineq to create the corrected GINI of the Data
+Gini(NI2013BRD$netincome, corr=TRUE)
 </code></pre>
 
 <p style="font-size:18px" style="text-align: justify" style="margin-bottom: 20px">
-If you have an assumption about what happened try to test it with code! 
+Can you prove that the correction has been done correctly? 
 </p>
 
 
